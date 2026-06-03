@@ -1,5 +1,14 @@
+// backend/src/repositories/informationRepository.js
+
 import { findMany } from './dataRepository.js';
 
+/**
+ * Railway MySQL 在 pool.execute() + LIMIT ? 可能會出現：
+ * Incorrect arguments to mysqld_stmt_execute
+ *
+ * 所以這裡先確認 limit 是正整數，
+ * 再安全地組成 LIMIT 數字字串。
+ */
 function createLimitClause(limit) {
   const value = Number(limit);
 
@@ -31,6 +40,7 @@ export function listActiveServices({ limit } = {}) {
     ORDER BY FIELD(category, 'grooming', 'boarding', 'daycare', 'addon'), id ASC
     ${suffix}
     `,
+    [],
   );
 }
 
@@ -58,6 +68,7 @@ export function listActiveActivities({ limit } = {}) {
     ORDER BY sort_order ASC, id DESC
     ${suffix}
     `,
+    [],
   );
 }
 
@@ -85,6 +96,7 @@ export function listActiveStores({ limit } = {}) {
     ORDER BY id ASC
     ${suffix}
     `,
+    [],
   );
 }
 
@@ -110,6 +122,7 @@ export function listVisibleReviews({ limit = 50 } = {}) {
     ORDER BY r.created_at DESC, r.id DESC
     ${suffix}
     `,
+    [],
   );
 }
 

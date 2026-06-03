@@ -34,7 +34,9 @@ export function listActiveServices({ limit } = {}) {
   );
 }
 
-export function listActiveActivities() {
+export function listActiveActivities({ limit } = {}) {
+  const suffix = createLimitClause(limit);
+
   return findMany(
     `
     SELECT
@@ -49,10 +51,12 @@ export function listActiveActivities() {
       cta_label,
       cta_link,
       is_banner,
-      sort_order
+      sort_order,
+      status
     FROM activities
     WHERE status = 'active'
     ORDER BY sort_order ASC, id DESC
+    ${suffix}
     `,
   );
 }
@@ -74,7 +78,8 @@ export function listActiveStores({ limit } = {}) {
       description,
       dog_room_capacity,
       cat_room_capacity,
-      daycare_capacity
+      daycare_capacity,
+      status
     FROM stores
     WHERE status = 'active'
     ORDER BY id ASC
@@ -123,7 +128,8 @@ export function findActiveActivityById(id) {
       cta_label,
       cta_link,
       is_banner,
-      sort_order
+      sort_order,
+      status
     FROM activities
     WHERE id = ? AND status = 'active'
     LIMIT 1

@@ -1,8 +1,17 @@
 import { findMany } from './dataRepository.js';
 
+function createLimitClause(limit) {
+  const value = Number(limit);
+
+  if (!Number.isInteger(value) || value <= 0) {
+    return '';
+  }
+
+  return `LIMIT ${value}`;
+}
+
 export function listActiveServices({ limit } = {}) {
-  const suffix = limit ? 'LIMIT ?' : '';
-  const params = limit ? [limit] : [];
+  const suffix = createLimitClause(limit);
 
   return findMany(
     `
@@ -22,7 +31,6 @@ export function listActiveServices({ limit } = {}) {
     ORDER BY FIELD(category, 'grooming', 'boarding', 'daycare', 'addon'), id ASC
     ${suffix}
     `,
-    params,
   );
 }
 
@@ -50,8 +58,7 @@ export function listActiveActivities() {
 }
 
 export function listActiveStores({ limit } = {}) {
-  const suffix = limit ? 'LIMIT ?' : '';
-  const params = limit ? [limit] : [];
+  const suffix = createLimitClause(limit);
 
   return findMany(
     `
@@ -73,11 +80,12 @@ export function listActiveStores({ limit } = {}) {
     ORDER BY id ASC
     ${suffix}
     `,
-    params,
   );
 }
 
 export function listVisibleReviews({ limit = 50 } = {}) {
+  const suffix = createLimitClause(limit);
+
   return findMany(
     `
     SELECT
@@ -95,9 +103,8 @@ export function listVisibleReviews({ limit = 50 } = {}) {
     LEFT JOIN services s ON s.id = r.service_id
     WHERE r.status = 'visible'
     ORDER BY r.created_at DESC, r.id DESC
-    LIMIT ?
+    ${suffix}
     `,
-    [limit],
   );
 }
 
@@ -118,8 +125,7 @@ export function findActiveActivityById(id) {
       is_banner,
       sort_order
     FROM activities
-    WHERE id = ?
-      AND status = 'active'
+    WHERE id = ? AND status = 'active'
     LIMIT 1
     `,
     [id],
